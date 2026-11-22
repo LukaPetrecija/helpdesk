@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ticket #' + ${ticket.id})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('tickets')}"></header>
+
+<main class="container">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <p class="breadcrumb"><a th:href="@{/tickets}">Tickets</a> / <span th:text="'#' + ${ticket.id}">#42</span></p>
+
+    <div class="page-title">
+        <h1>
+            <span th:text="'#' + ${ticket.id} + ' ' + ${ticket.title}">#42 Title</span>
+            <span class="chip" th:text="${#strings.replace(ticket.status.name(), '_', ' ')}">OPEN</span>
+            <span class="chip" th:text="${ticket.priority}">HIGH</span>
+        </h1>
+        <div class="actions">
+            <a class="btn" th:href="@{/tickets/{id}/edit(id=${ticket.id})}">Edit</a>
+            <a class="btn btn-danger-outline" th:href="@{/tickets/{id}/delete(id=${ticket.id})}">Delete</a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <section>
+            <div class="card">
+                <h3>Description</h3>
+                <p class="pre-line" th:text="${ticket.description}">Description</p>
+            </div>
+
+            <h2 id="comments" th:text="|Comments (${#lists.size(ticket.comments)})|">Comments (3)</h2>
+
+            <p th:if="${#lists.isEmpty(ticket.comments)}" class="muted">No comments yet.</p>
+
+            <div th:each="c : ${ticket.comments}" class="card comment" th:classappend="${c.internal} ? 'comment-internal'">
+                <div class="comment-meta">
+                    <strong th:text="${c.author.fullName}">Marko Horvat</strong>
+                    <span class="muted" th:text="${#temporals.format(c.createdAt, 'dd.MM.yyyy HH:mm')}">09:40</span>
+                    <span th:if="${c.internal}" class="chip chip-dark">Internal</span>
+                    <span th:if="${c.editedAt != null}" class="muted">(edited)</span>
+                </div>
+                <p class="pre-line" th:text="${c.body}">Comment text</p>
+                <div class="comment-actions">
+                    <a th:href="@{/tickets/{t}/comments/{c}/edit(t=${ticket.id}, c=${c.id})}">Edit</a>
+                    <form method="post" class="inline"
+                          th:action="@{/tickets/{t}/comments/{c}/delete(t=${ticket.id}, c=${c.id})}"
+                          onsubmit="return confirm('Delete this comment?');">
+                        <button type="submit" class="link-button">Delete</button>
+                    </form>
+                </div>
+            </div>
+
+            <form class="card" method="post" novalidate
+                  th:action="@{/tickets/{id}/comments(id=${ticket.id})}" th:object="${commentForm}">
+                <h3>Add comment</h3>
+                <div th:if="${#fields.hasAnyErrors()}" class="error-box">Please correct the errors below.</div>
+
+                <div class="field">
+                    <label for="authorId">Author (temporary until login)</label>
+                    <select id="authorId" th:field="*{authorId}" th:errorclass="is-invalid">
+                        <option value="">Select…</option>
+                        <option th:each="u : ${users}" th:value="${u.id}"
+                                th:text="${u.fullName} + ' (' + ${u.role} + ')'">Ana Kovač (USER)</option>
+                    </select>
+                    <p class="field-error" th:if="${#fields.hasErrors('authorId')}" th:errors="*{authorId}"></p>
+                </div>
+
+                <div class="field">
+                    <label for="body">Comment</label>
+                    <textarea id="body" rows="4" th:field="*{body}" th:errorclass="is-invalid"
+                              placeholder="Write a comment…"></textarea>
+                    <p class="field-error" th:if="${#fields.hasErrors('body')}" th:errors="*{body}"></p>
+                </div>
+
+                <div class="form-row-between">
+                    <label class="checkbox"><input type="checkbox" th:field="*{internal}"> Internal note (not visible to requester)</label>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="card details">
+            <h3>Details</h3>
+            <dl>
+                <dt>Requester</dt>
+                <dd th:text="${ticket.requester.fullName}">Ana Kovač</dd>
+                <dt>Assignee</dt>
+                <dd th:text="${ticket.assignee != null} ? ${ticket.assignee.fullName} : 'Unassigned'">Marko Horvat</dd>
+                <dt>Team</dt>
+                <dd th:text="${ticket.team != null} ? ${ticket.team.name} : '—'">IT Support</dd>
+                <dt>Category</dt>
+                <dd th:text="${ticket.category.name}">Email</dd>
+                <dt>SLA policy</dt>
+                <dd th:text="${ticket.slaPolicy.name}">High priority</dd>
+                <dt>Created</dt>
+                <dd th:text="${#temporals.format(ticket.createdAt, 'dd.MM.yyyy HH:mm')}">21.11.2026 08:55</dd>
+                <dt>First response due</dt>
+                <dd th:text="${ticket.firstResponseDueAt != null} ? ${#temporals.format(ticket.firstResponseDueAt, 'dd.MM.yyyy HH:mm')} : '—'">11:00</dd>
+                <dt>Resolution due</dt>
+                <dd th:text="${ticket.resolutionDueAt != null} ? ${#temporals.format(ticket.resolutionDueAt, 'dd.MM.yyyy HH:mm')} : '—'">14:00</dd>
+                <th:block th:if="${ticket.resolvedAt != null}">
+                    <dt>Resolved</dt>
+                    <dd th:text="${#temporals.format(ticket.resolvedAt, 'dd.MM.yyyy HH:mm')}">—</dd>
+                </th:block>
+            </dl>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

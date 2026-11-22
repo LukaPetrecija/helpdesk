@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Edit comment')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('tickets')}"></header>
+
+<main class="container narrow">
+    <p class="breadcrumb">
+        <a th:href="@{/tickets}">Tickets</a> /
+        <a th:href="@{/tickets/{id}(id=${ticket.id})}" th:text="'#' + ${ticket.id}">#42</a> / Edit comment
+    </p>
+    <h1 th:text="'Edit comment on #' + ${ticket.id} + ' ' + ${ticket.title}">Edit comment</h1>
+
+    <form class="card" method="post" novalidate th:object="${commentForm}"
+          th:action="@{/tickets/{t}/comments/{c}/edit(t=${ticket.id}, c=${commentForm.id})}">
+        <div th:if="${#fields.hasAnyErrors()}" class="error-box">Please correct the errors below.</div>
+
+        <input type="hidden" th:field="*{authorId}">
+
+        <div class="field">
+            <label for="body">Comment</label>
+            <textarea id="body" rows="6" th:field="*{body}" th:errorclass="is-invalid"></textarea>
+            <p class="field-error" th:if="${#fields.hasErrors('body')}" th:errors="*{body}"></p>
+        </div>
+
+        <label class="checkbox"><input type="checkbox" th:field="*{internal}"> Internal note (not visible to requester)</label>
+
+        <div class="buttons">
+            <button type="submit" class="btn btn-primary">Save comment</button>
+            <a class="btn" th:href="@{|/tickets/${ticket.id}#comments|}">Cancel</a>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

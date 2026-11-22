@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${ticketForm.editing} ? 'Edit ticket' : 'New ticket')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${ticketForm.editing} ? 'tickets' : 'new')}"></header>
+
+<main class="container">
+    <div class="page-title">
+        <div>
+            <h1 th:text="${ticketForm.editing} ? 'Edit ticket #' + ${ticketForm.id} : 'New ticket'">New ticket</h1>
+            <p class="muted" th:unless="${ticketForm.editing}">Describe your problem and we'll get back to you.</p>
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <form method="post" novalidate th:object="${ticketForm}"
+              th:action="${ticketForm.editing} ? @{/tickets/{id}/edit(id=${ticketForm.id})} : @{/tickets/new}">
+
+            <div th:if="${#fields.hasAnyErrors()}" class="error-box">Please correct the errors below.</div>
+
+            <div class="field">
+                <label for="title">Title *</label>
+                <input id="title" type="text" th:field="*{title}" th:errorclass="is-invalid"
+                       placeholder="Short summary of the problem">
+                <p class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+            </div>
+
+            <div class="field">
+                <label for="description">Description *</label>
+                <textarea id="description" rows="7" th:field="*{description}" th:errorclass="is-invalid"
+                          placeholder="What happened? What did you expect? Since when?"></textarea>
+                <p class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="categoryId">Category *</label>
+                    <select id="categoryId" th:field="*{categoryId}" th:errorclass="is-invalid">
+                        <option value="">Select a category</option>
+                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}">Email</option>
+                    </select>
+                    <p class="field-error" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></p>
+                </div>
+                <div class="field">
+                    <label for="priority">Priority *</label>
+                    <select id="priority" th:field="*{priority}" th:errorclass="is-invalid">
+                        <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}">MEDIUM</option>
+                    </select>
+                    <p class="field-error" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></p>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="requesterId">Requester * (temporary until login)</label>
+                <select id="requesterId" th:field="*{requesterId}" th:errorclass="is-invalid">
+                    <option value="">Select the requester</option>
+                    <option th:each="u : ${users}" th:value="${u.id}"
+                            th:text="${u.fullName} + ' (' + ${u.role} + ')'">Ana Kovač (USER)</option>
+                </select>
+                <p class="field-error" th:if="${#fields.hasErrors('requesterId')}" th:errors="*{requesterId}"></p>
+            </div>
+
+            <div class="field-row" th:if="${ticketForm.editing}">
+                <div class="field">
+                    <label for="status">Status</label>
+                    <select id="status" th:field="*{status}">
+                        <option th:each="s : ${statuses}" th:value="${s}"
+                                th:text="${#strings.replace(s.name(), '_', ' ')}">OPEN</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="assigneeId">Assignee</label>
+                    <select id="assigneeId" th:field="*{assigneeId}">
+                        <option value="">Unassigned</option>
+                        <option th:each="a : ${agents}" th:value="${a.id}" th:text="${a.fullName}">Marko Horvat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${ticketForm.editing} ? 'Save changes' : 'Submit ticket'">Submit ticket</button>
+                <a class="btn" th:href="${ticketForm.editing} ? @{/tickets/{id}(id=${ticketForm.id})} : @{/tickets}">Cancel</a>
+            </div>
+        </form>
+
+        <aside class="card info-box" th:unless="${ticketForm.editing}">
+            <h3>What happens next?</h3>
+            <ol>
+                <li>Your ticket gets an SLA deadline based on its priority.</li>
+                <li>An agent from the right team picks it up.</li>
+                <li>You get updates as comments on the ticket.</li>
+            </ol>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

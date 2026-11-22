@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' – Helpdesk'">Helpdesk</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header th:fragment="header(active)" class="app-header">
+    <a class="brand" th:href="@{/tickets}">Helpdesk</a>
+    <nav class="main-nav">
+        <a th:href="@{/tickets}" th:classappend="${active == 'tickets'} ? 'active'">Tickets</a>
+        <a th:href="@{/tickets/new}" th:classappend="${active == 'new'} ? 'active'">New ticket</a>
+    </nav>
+    <div class="header-user">
+        <span class="avatar"></span>
+        <span class="muted">Demo mode – login in M3</span>
+    </div>
+</header>
+
+<div th:fragment="flash" th:if="${flash}" class="flash" role="status">
+    <span th:text="'✓ ' + ${flash}">Saved.</span>
+</div>
+
+<footer th:fragment="footer" class="app-footer">© 2026 Helpdesk – P12</footer>
+
+</body>
+</html>

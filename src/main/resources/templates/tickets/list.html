@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tickets')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('tickets')}"></header>
+
+<main class="container">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-title">
+        <h1>Tickets</h1>
+        <a class="btn btn-primary" th:href="@{/tickets/new}">+ New ticket</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(tickets)}" class="empty-state">
+        <p>No tickets yet.</p>
+        <a class="btn btn-primary" th:href="@{/tickets/new}">Create the first ticket</a>
+    </div>
+
+    <table th:unless="${#lists.isEmpty(tickets)}" class="table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Category</th>
+            <th>Assignee</th>
+            <th>Resolution due</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="t : ${tickets}">
+            <td th:text="'#' + ${t.id}">#42</td>
+            <td><a class="title-link" th:href="@{/tickets/{id}(id=${t.id})}" th:text="${t.title}">Title</a></td>
+            <td><span class="chip" th:text="${#strings.replace(t.status.name(), '_', ' ')}">OPEN</span></td>
+            <td><span class="chip"
+                      th:classappend="${t.priority.name() == 'CRITICAL' or t.priority.name() == 'HIGH'} ? 'chip-strong'"
+                      th:text="${t.priority}">HIGH</span></td>
+            <td th:text="${t.category.name}">Email</td>
+            <td>
+                <span th:if="${t.assignee != null}" th:text="${t.assignee.fullName}">Marko Horvat</span>
+                <em th:if="${t.assignee == null}" class="muted">Unassigned</em>
+            </td>
+            <td th:text="${t.resolutionDueAt != null} ? ${#temporals.format(t.resolutionDueAt, 'dd.MM.yyyy HH:mm')} : '—'">
+                Today 14:00
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="muted" th:unless="${#lists.isEmpty(tickets)}"
+       th:text="|Showing ${#lists.size(tickets)} tickets|">Showing 8 tickets</p>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

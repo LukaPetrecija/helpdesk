@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Delete ticket')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('tickets')}"></header>
+
+<main class="container narrow">
+    <div class="card">
+        <h1 th:text="'Delete ticket #' + ${ticket.id} + '?'">Delete ticket #42?</h1>
+        <p>
+            This permanently deletes <strong th:text="${ticket.title}">title</strong>
+            <span th:text="|together with its ${#lists.size(ticket.comments)} comment(s).|">together with its comments.</span>
+            This cannot be undone.
+        </p>
+        <form method="post" th:action="@{/tickets/{id}/delete(id=${ticket.id})}" class="buttons">
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a class="btn" th:href="@{/tickets/{id}(id=${ticket.id})}">Cancel</a>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
